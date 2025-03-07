@@ -38,7 +38,8 @@ export async function POST(req: NextRequest){
         const hashpassword = await bcrypt.hash(password, 10);
         const validateRole : Role[] = ["STUDENT", "INSTRUCTOR", "ADMIN"]
         const userRole: Role = validateRole.includes(role as Role) ? (role as Role) : "STUDENT"    // complete this 
-
+        
+        
         const newUser = await prisma.user.create({
             data:{
                 email,

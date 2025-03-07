@@ -6,7 +6,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
-
+// console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+// console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
 
 export const authOptions = {
     adapter: PrismaAdapter(prisma),
@@ -15,7 +16,7 @@ export const authOptions = {
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         }),
-
+        
         CredentialsProvider({
             name:"Credentials",
             credentials:{
@@ -52,8 +53,7 @@ export const authOptions = {
     ],
     callbacks: {
         async signIn({ account, profile }) {
-            if (account?.provider === "google") {
-                if (!profile?.email) return false;
+            if (account?.provider === "google" && profile?.email) {
 
                 let user = await prisma.user.findUnique({
                     where: { email: profile.email }
@@ -67,7 +67,8 @@ export const authOptions = {
                             role: Role.STUDENT,
                             accounts: {
                                 create: {
-                                    provider: account.provider,
+                                    providerType: account.type,
+                                    providerId: account.provider,
                                     providerAccountId: account.providerAccountId,
                                 }
                             }
